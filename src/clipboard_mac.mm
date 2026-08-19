@@ -20,7 +20,11 @@ std::vector<std::string> ReadFilePaths() {
         }
         result.reserve([urls count]);
         for (NSURL *url in urls) {
-            const char *representation = [url fileSystemRepresentation];
+            // The filesystem hands back decomposed unicode; return the
+            // precomposed form JavaScript callers almost always hold. APFS
+            // and HFS+ resolve either form to the same file.
+            NSString *composed = [[url path] precomposedStringWithCanonicalMapping];
+            const char *representation = [composed UTF8String];
             if (representation) {
                 result.emplace_back(representation);
             }
