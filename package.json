@@ -1,0 +1,54 @@
+{
+  "name": "@lumine-code/clipboard-files",
+  "author": "lumine-code",
+  "version": "1.0.0",
+  "description": "Reads and writes file paths with cut or copy intent on the system clipboard.",
+  "license": "MIT",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "build": "node-gyp rebuild",
+    "pretest": "npm run build",
+    "test": "jasmine",
+    "lint": "eslint . --max-warnings 0 && prettier --check .",
+    "format": "prettier --write ."
+  },
+  "repository": "https://github.com/lumine-code/clipboard-files",
+  "bugs": "https://github.com/lumine-code/clipboard-files/issues",
+  "homepage": "https://github.com/lumine-code/clipboard-files/",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "files": [
+    "binding.gyp",
+    "index.js",
+    "index.d.ts",
+    "lib",
+    "src"
+  ],
+  "keywords": [
+    "clipboard",
+    "files",
+    "copy-paste",
+    "cf-hdrop",
+    "nspasteboard",
+    "uri-list",
+    "lumine"
+  ],
+  "dependencies": {
+    "node-addon-api": "^8.9.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.8.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-n": "^18.3.0",
+    "globals": "^17.11.0",
+    "jasmine": "^6.3.0",
+    "node-gyp": "^13.0.1",
+    "prettier": "^3.9.6"
+  }
+}

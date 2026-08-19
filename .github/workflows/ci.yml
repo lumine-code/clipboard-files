@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - run: npm ci --ignore-scripts
+      - run: npm run lint
+
+  test:
+    name: Node ${{ matrix.node }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            node: 24
+          - os: macos-latest
+            node: 24
+          - os: windows-latest
+            node: 24
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+      # The Linux round-trip spec talks to a real X clipboard through xclip,
+      # which needs a display; xvfb provides one on the runner.
+      - name: Install a headless display and xclip
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update || true
+          sudo apt-get install -y xclip xvfb
+      # `npm ci` compiles the addon through the gypfile on Windows and macOS;
+      # on Linux the target is `type: none` and the install is a no-op build.
+      - name: Install dependencies and build the addon
+        run: npm ci
+      - name: Run tests
+        if: runner.os != 'Linux'
+        run: npm test
+      - name: Run tests under xvfb
+        if: runner.os == 'Linux'
+        run: xvfb-run --auto-servernum npm test
+      - name: Validate package contents
+        run: npm pack --dry-run
