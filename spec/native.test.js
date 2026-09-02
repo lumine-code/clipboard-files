@@ -3,7 +3,7 @@ const path = require("node:path");
 const clipboard = require("../index");
 
 const native = process.platform === "win32" || process.platform === "darwin";
-const suite = native ? describe : xdescribe;
+const suite = native ? describe : () => {};
 
 // The paths need not exist: the clipboard carries strings, not files.
 const base = path.join(os.tmpdir(), "clipboard-files-spec");
