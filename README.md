@@ -15,7 +15,7 @@ The ordinary clipboard APIs carry text; file managers exchange _files_ through r
 
 ## Installation
 
-```
+```sh
 npm install @lumine-code/clipboard-files
 ```
 
