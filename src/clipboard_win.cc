@@ -26,7 +26,21 @@ class ClipboardScope {
     bool valid;
 public:
     ClipboardScope() {
-        valid = static_cast<bool>(OpenClipboard(NULL));
+        // Clipboard viewers and other applications can briefly hold the
+        // process-global clipboard between our consecutive operations. A
+        // single failed acquisition used to turn a valid cut into DROP_EFFECT_NONE
+        // or silently discard clear/write operations. Keep the synchronous API,
+        // but retry contention for a bounded interval instead of treating it as
+        // an empty clipboard. GetTickCount64 bounds elapsed time even when Sleep
+        // rounds its delay up to the system timer resolution.
+        constexpr ULONGLONG timeout_ms = 100;
+        const ULONGLONG deadline = GetTickCount64() + timeout_ms;
+        while (!(valid = static_cast<bool>(OpenClipboard(NULL)))) {
+            const ULONGLONG now = GetTickCount64();
+            if (now >= deadline) break;
+            const ULONGLONG remaining = deadline - now;
+            Sleep(static_cast<DWORD>(remaining < 5 ? remaining : 5));
+        }
     }
     ~ClipboardScope() {
         if (valid) CloseClipboard();
